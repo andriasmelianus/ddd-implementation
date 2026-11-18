@@ -1,0 +1,398 @@
+================================================================================
+CHAPTER 37: AI CODE GENERATION PATTERNS - PROMPT COLLECTION
+Source: Pragmatic DDD with Laravel by John Macias
+================================================================================
+
+--------------------------------------------------------------------------------
+1. VALUE OBJECT GENERATION
+--------------------------------------------------------------------------------
+
+1.1 Basic Value Object
+----------------------
+Create a value object for {Name} in namespace Src\{Context}\Domain\ValueObjects.
+
+Constraints:
+- {constraint 1}
+- {constraint 2}
+
+Requirements:
+- PHP 8.2 final readonly class
+- Self-validating constructor
+- Custom exception class
+- equals() method
+- Comprehensive unit tests
+
+================================================================================
+
+1.2 Composite Value Object
+--------------------------
+Create a composite value object for {Name} in namespace Src\{Context}\Domain\ValueObjects containing:
+- {property1}: {type}
+- {property2}: {type}
+
+Business rules:
+- {rule 1}
+- {rule 2}
+
+Include validation, equals(), and immutable "with" methods for updates.
+
+
+--------------------------------------------------------------------------------
+2. ENTITY GENERATION
+--------------------------------------------------------------------------------
+
+2.1 Aggregate Root
+------------------
+Create an aggregate root entity for {EntityName}.
+
+Properties:
+- id: {EntityName}Id
+- {property}: {ValueObjectType}
+
+Behaviors:
+- create(): Factory method with initial state
+- {method1}(): {description}
+- {method2}(): {description}
+
+Include:
+- Private constructor
+- Factory methods (create, reconstitute)
+- Business methods enforcing invariants
+- Event recording
+- Unit tests for all behaviors and transitions
+
+================================================================================
+
+2.2 Child Entity
+----------------
+Create a child entity {EntityName} that belongs to {ParentAggregate}.
+
+Properties:
+- {properties}
+
+Business rules:
+- {rules}
+
+Note: This entity is accessed only through the parent aggregate. No separate repository needed.
+
+
+--------------------------------------------------------------------------------
+3. COMMAND AND HANDLER GENERATION
+--------------------------------------------------------------------------------
+
+3.1 Command
+-----------
+Create a command for {ActionName}:
+
+Command properties (immutable):
+- {property1}: {type}
+- {property2}: {type}
+
+Handler logic:
+1. {step 1}
+2. {step 2}
+3. {step 3}
+
+Exceptions to throw:
+- {ExceptionName} when {condition}
+
+Events to publish:
+- {EventName} on success
+
+Include:
+- Command DTO class
+- Handler class with constructor injection
+- Handler unit tests with mocks
+
+================================================================================
+
+3.2 Command Example (ConfirmBooking)
+------------------------------------
+Create a command for ConfirmBooking:
+
+Command properties (immutable):
+- bookingId: BookingId
+- confirmedBy: UserId
+
+Handler logic:
+1. Load booking from repository
+2. Verify booking exists (throw if not)
+3. Call booking.confirm()
+4. Save booking
+5. Publish events
+
+Exceptions to throw:
+- BookingNotFound when booking doesn't exist
+- CannotConfirmBooking when booking is not pending
+
+Events to publish:
+- BookingConfirmed on success
+
+Include:
+- Command DTO class
+- Handler class with constructor injection
+- Handler unit tests with mocks
+
+
+--------------------------------------------------------------------------------
+4. QUERY AND HANDLER GENERATION
+--------------------------------------------------------------------------------
+
+4.1 Query
+---------
+Create a query for {QueryName}:
+
+Filters:
+- {filter1}: {type}
+- {filter2}: {type}
+
+Response data (DTO):
+- {field1}: {type}
+- {field2}: {type}
+
+Handler requirements:
+- Query Repository implementation using Eloquent / DB query builder
+- Optimized database query (selective columns, JOINs if needed)
+- Pagination support
+- DTO transformation
+- Computed fields: {field}
+
+Handle not found case with null return (not exception).
+
+
+--------------------------------------------------------------------------------
+5. REPOSITORY GENERATION
+--------------------------------------------------------------------------------
+
+5.1 Repository Interface
+------------------------
+Create a repository interface for {EntityName}:
+
+Methods needed:
+- save({EntityName}): void
+- findById({EntityName}Id): ?{EntityName}
+- findBy{Criteria}({params}): {EntityName}Collection
+- exists({EntityName}Id): bool
+- count{Criteria}({params}): int
+
+Place in Src\{Context}\Domain\Repository
+
+================================================================================
+
+5.2 Eloquent Repository Implementation
+--------------------------------------
+Create an Eloquent repository implementation for {EntityName}Repository.
+
+Database model: {ModelName}
+
+Include:
+- save() method handling insert and update
+- findById() method with model-to-entity mapping
+- Mapper class converting between Eloquent Model and Domain Entity
+- Integration test class extending TestCase with RefreshDatabase
+
+
+--------------------------------------------------------------------------------
+6. DOMAIN EVENT GENERATION
+--------------------------------------------------------------------------------
+
+6.1 Domain Event
+----------------
+Create a domain event {EventName} with properties:
+
+Event data:
+- {property1}: {type}
+- {property2}: {type}
+- occurredAt: DateTimeImmutable
+
+Include:
+- Immutable readonly class
+- All properties in constructor
+- eventType() method returning '{context}.{event_name}'
+
+================================================================================
+
+6.2 Event Listener
+------------------
+Create an event listener for {EventName}:
+
+When {EventName} occurs:
+1. {action 1}
+2. {action 2}
+
+Should be:
+- Idempotent (safe to process twice)
+- Async (implements ShouldQueue)
+- With retry logic (3 attempts)
+
+Include unit tests with event fakes.
+
+
+--------------------------------------------------------------------------------
+7. TEST GENERATION
+--------------------------------------------------------------------------------
+
+7.1 Unit Tests for Entity
+-------------------------
+Generate unit tests for this entity:
+[paste entity code]
+
+Test scenarios:
+- Creation with valid data
+- Creation with invalid data (each validation)
+- Each state transition (valid and invalid)
+- Each business method
+- Event recording
+
+Use Arrange-Act-Assert pattern.
+
+================================================================================
+
+7.2 Integration Tests for Repository
+------------------------------------
+Generate integration tests for this repository:
+[paste repository interface]
+
+Test:
+- save and findById round-trip
+- findById with non-existent ID
+- Each query method with matching and non-matching data
+- Concurrent save (optimistic locking if applicable)
+
+Use RefreshDatabase trait.
+Create factory for test data.
+
+================================================================================
+
+7.3 Feature Tests for API
+-------------------------
+Generate feature tests for this endpoint:
+[paste endpoint/route code]
+
+Test scenarios:
+- Successful request (200/201)
+- Validation errors (422)
+- Domain exception responses (400/409/404)
+- Unauthorized access (401)
+
+Verify:
+- Response status code
+- JSON structure and types
+- Database state changes
+
+
+--------------------------------------------------------------------------------
+8. MIGRATION GENERATION
+--------------------------------------------------------------------------------
+
+8.1 Zero-Downtime Migration
+---------------------------
+Generate a zero-downtime migration to add {column} to {table}:
+
+Column specification:
+- Name: {name}
+- Type: {type}
+- Nullable: {yes/no}
+- Default: {value}
+
+Include down() method.
+
+
+--------------------------------------------------------------------------------
+9. REFACTORING PATTERNS
+--------------------------------------------------------------------------------
+
+9.1 Extract Value Object
+------------------------
+Extract value objects from this code:
+[paste code with primitives]
+
+For each primitive that represents a domain concept:
+1. Create a value object
+2. Add validation
+3. Update usages
+
+Identify candidates based on:
+- Validation logic around the value
+- Same value used in multiple places
+- Value has implicit constraints
+
+================================================================================
+
+9.2 Extract Domain Service
+--------------------------
+Extract a domain service from this code:
+[paste code with business logic]
+
+The service should:
+- Contain only the business logic
+- Have no infrastructure dependencies
+- Accept and return domain objects
+- Be stateless
+
+Create:
+- Service class
+- Service interface
+- Unit tests
+
+================================================================================
+
+9.3 Convert to CQRS
+-------------------
+Convert this controller/service to CQRS:
+[paste code]
+
+Split into:
+- Commands for write operations
+- Queries for read operations
+- Handlers for each
+
+Maintain the same API contract.
+
+
+--------------------------------------------------------------------------------
+10. BATCH GENERATION
+--------------------------------------------------------------------------------
+
+10.1 Feature Batch
+------------------
+Generate a complete feature for {FeatureName}:
+
+Business rules:
+{list rules}
+
+Generate these components:
+1. Value objects for: {list}
+2. Entity: {name} with behaviors: {list}
+3. Events: {list}
+4. Command: {name}
+5. Query: {name}
+6. Repository interface and implementation
+7. Unit tests for domain layer
+8. Integration tests for repository
+9. Migration
+
+All in DDD structure following project conventions.
+
+================================================================================
+
+10.2 CRUD Batch
+---------------
+Generate complete CRUD for {EntityName}:
+
+Entity properties:
+{list}
+
+Validation rules:
+{list}
+
+Generate:
+- CreateCommand + Handler
+- UpdateCommand + Handler
+- DeleteCommand + Handler
+- GetByIdQuery + Handler
+- ListQuery + Handler (with pagination)
+- Repository interface + implementation
+- Migration
+- All tests
+- API routes and controllers
