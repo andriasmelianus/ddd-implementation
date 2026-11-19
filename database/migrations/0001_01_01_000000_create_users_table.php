@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->integer('failed_login_attempts');
-            $table->timestamp('last_login_at');
-            $table->string('account_status');
+            $table->integer('failed_login_attempts')->default(0);
+            $table->timestamp('last_login_at')->nullable();
+            $table->string('account_status')->default('ACTIVE');
             $table->rememberToken();
             $table->timestamps();
         });
