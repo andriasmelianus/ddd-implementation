@@ -17,9 +17,13 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->integer('failed_login_attempts');
-            $table->timestamp('last_login_at');
-            $table->string('account_status');
+            // Brute-force protection counter (Business Rule #4).
+            // Defaults to 0 so freshly registered accounts are always valid.
+            $table->unsignedInteger('failed_login_attempts')->default(0);
+            // NULL until the very first successful login (Business Rule #5).
+            $table->timestamp('last_login_at')->nullable();
+            // Backing column for the AccountStatus value object / enum.
+            $table->string('account_status', 32)->default('unverified')->index();
             $table->rememberToken();
             $table->timestamps();
         });
