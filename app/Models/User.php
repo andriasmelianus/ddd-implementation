@@ -10,6 +10,13 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
+    /**
+     * The `users` table uses application-generated ULIDs, not auto-incrementing integers.
+     */
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -21,7 +28,11 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'email_verified_at',
         'password',
+        'failed_login_attempts',
+        'last_login_at',
+        'account_status',
     ];
 
     /**
