@@ -6,6 +6,7 @@ namespace Src\IAM\Domain\Ports;
 
 use Src\IAM\Domain\Entity\User;
 use Src\IAM\Domain\ValueObjects\EmailAddress;
+use Src\Shared\Framework\Domain\ValueObjects\Ulid;
 
 /**
  * Interface UserRepositoryInterface
@@ -28,6 +29,11 @@ use Src\IAM\Domain\ValueObjects\EmailAddress;
  */
 interface UserRepositoryInterface
 {
+    /**
+     * Memuat aggregate {@see User} berdasarkan identitas domainnya.
+     */
+    public function findById(Ulid $userId): ?User;
+
     /**
      * Memuat aggregate {@see User} berdasarkan email.
      *

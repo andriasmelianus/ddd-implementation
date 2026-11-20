@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace Src\IAM\Domain\Events;
 
-use Src\Shared\Framework\Domain\Events\DomainEvent;
-
 /**
- * Class UserAuthenticated
- *
- * Domain event yang menandakan seorang user **berhasil** diautentikasi.
+ * Records a successful IAM authentication.
  */
-final class UserAuthenticated extends DomainEvent
+final readonly class UserAuthenticated
 {
-    public function __construct(public readonly string $userId)
+    public function __construct(public string $userId)
     {
-        parent::__construct();
     }
 
     public function getName(): string

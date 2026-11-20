@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Src\IAM\Infrastructure\Persistence;
 
-use App\Models\User as UserModel;
+use DateTimeImmutable;
 use Src\IAM\Domain\Entity\User;
 use Src\IAM\Domain\Ports\UserRepositoryInterface;
 use Src\IAM\Domain\ValueObjects\AccountStatus;
@@ -13,6 +13,13 @@ use Src\Shared\Framework\Domain\ValueObjects\Ulid;
 
 final readonly class EloquentUserRepository implements UserRepositoryInterface
 {
+    public function findById(Ulid $userId): ?User
+    {
+        $model = UserModel::query()->find($userId->getValue());
+
+        return $model === null ? null : $this->toDomain($model);
+    }
+
     public function findByEmail(EmailAddress $email): ?User
     {
         $model = UserModel::query()
@@ -32,7 +39,7 @@ final readonly class EloquentUserRepository implements UserRepositoryInterface
             'password' => $user->hashedPassword(),
             'account_status' => $user->status()->value,
             'failed_login_attempts' => $user->failedLoginAttempts(),
-            'last_login_at' => now(),
+            'last_login_at' => $user->lastLoginAt(),
         ]);
 
         $model->save();
@@ -47,6 +54,9 @@ final readonly class EloquentUserRepository implements UserRepositoryInterface
             hashedPassword: (string) $model->password,
             status: AccountStatus::from((string) $model->account_status),
             failedLoginAttempts: (int) $model->failed_login_attempts,
+            lastLoginAt: $model->last_login_at === null
+                ? null
+                : DateTimeImmutable::createFromInterface($model->last_login_at),
         );
     }
 }

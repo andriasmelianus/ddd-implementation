@@ -65,7 +65,7 @@ class PortContractsTest extends TestCase
         );
 
         sort($methods);
-        $this->assertSame(['findByEmail', 'save'], $methods);
+        $this->assertSame(['findByEmail', 'findById', 'save'], $methods);
     }
 
     public function test_an_in_memory_repository_can_satisfy_the_contract(): void

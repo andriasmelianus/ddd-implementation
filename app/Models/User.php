@@ -54,6 +54,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'failed_login_attempts' => 'integer',
+            'last_login_at' => 'immutable_datetime',
             'password' => 'hashed',
         ];
     }

@@ -4,24 +4,15 @@ declare(strict_types=1);
 
 namespace Src\IAM\Domain\Events;
 
-use Src\Shared\Framework\Domain\Events\DomainEvent;
-
 /**
- * Class UserAuthenticationFailed
- *
- * Domain event yang menandakan percobaan autentikasi **gagal** karena
- * password tidak cocok.
- *
- * Membawa `failedLoginAttempts` terkini agar listener (mis. monitoring
- * keamanan / rate limiter) dapat bereaksi tanpa perlu query ulang.
+ * Records an unsuccessful authentication attempt.
  */
-final class UserAuthenticationFailed extends DomainEvent
+final readonly class UserAuthenticationFailed
 {
     public function __construct(
-        public readonly string $userId,
-        public readonly int $failedLoginAttempts,
+        public string $userId,
+        public int $failedLoginAttempts,
     ) {
-        parent::__construct();
     }
 
     public function getName(): string

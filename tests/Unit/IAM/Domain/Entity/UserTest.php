@@ -14,7 +14,6 @@ use Src\IAM\Domain\Exceptions\AccountUnverifiedException;
 use Src\IAM\Domain\Exceptions\InvalidCredentialsException;
 use Src\IAM\Domain\ValueObjects\AccountStatus;
 use Src\IAM\Domain\ValueObjects\EmailAddress;
-use Src\Shared\Framework\Domain\Entities\BaseAggregateRoot;
 use Src\Shared\Framework\Domain\ValueObjects\Ulid;
 use Tests\Unit\IAM\Support\FakePasswordHasher;
 
@@ -44,12 +43,12 @@ class UserTest extends TestCase
         );
     }
 
-    public function test_it_is_an_aggregate_root_with_event_capabilities(): void
+    public function test_it_is_a_framework_independent_aggregate_with_event_capabilities(): void
     {
         $user = $this->user();
 
-        $this->assertInstanceOf(BaseAggregateRoot::class, $user);
         $this->assertTrue(method_exists($user, 'pullEvents'));
+        $this->assertSame([], $user->pullEvents());
     }
 
     public function test_a_new_user_starts_unverified_with_no_failed_attempts(): void

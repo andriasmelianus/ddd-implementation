@@ -7,6 +7,7 @@ namespace Tests\Unit\IAM\Support;
 use Src\IAM\Domain\Entity\User;
 use Src\IAM\Domain\Ports\UserRepositoryInterface;
 use Src\IAM\Domain\ValueObjects\EmailAddress;
+use Src\Shared\Framework\Domain\ValueObjects\Ulid;
 
 /**
  * Implementasi in-memory {@see UserRepositoryInterface} untuk unit test.
@@ -20,6 +21,17 @@ final class InMemoryUserRepository implements UserRepositoryInterface
      * @var array<string, User> Ter-index berdasarkan email ter-normalisasi.
      */
     private array $users = [];
+
+    public function findById(Ulid $userId): ?User
+    {
+        foreach ($this->users as $user) {
+            if ($user->id->equals($userId)) {
+                return $user;
+            }
+        }
+
+        return null;
+    }
 
     public function findByEmail(EmailAddress $email): ?User
     {

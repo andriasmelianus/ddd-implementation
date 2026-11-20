@@ -4,21 +4,15 @@ declare(strict_types=1);
 
 namespace Src\IAM\Domain\Events;
 
-use Src\Shared\Framework\Domain\Events\DomainEvent;
-
 /**
- * Class UserSuspended
- *
- * Domain event yang menandakan akun user ditangguhkan secara otomatis
- * karena percobaan login gagal mencapai ambang batas.
+ * Records suspension after repeated failed login attempts.
  */
-final class UserSuspended extends DomainEvent
+final readonly class UserSuspended
 {
     public function __construct(
-        public readonly string $userId,
-        public readonly int $failedLoginAttempts,
+        public string $userId,
+        public int $failedLoginAttempts,
     ) {
-        parent::__construct();
     }
 
     public function getName(): string
