@@ -1,0 +1,239 @@
+{
+  "info": {
+    "name": "DDD IAM - Login",
+    "description": "POST /api/v1/auth/login — multi-condition authentication (DDD + Hexagonal + CQRS).\n\nSeed the test accounts first:\n  php artisan migrate:fresh --force\n  php artisan db:seed --class=IamUserSeeder\n\nAll seeded accounts share the password: secret123",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "access_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Login Success (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status is 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('contract matches the spec', () => {",
+              "    pm.expect(body).to.have.property('access_token');",
+              "    pm.expect(body.token_type).to.eql('Bearer');",
+              "    pm.expect(body).to.have.property('user_id');",
+              "});",
+              "pm.collectionVariables.set('access_token', body.access_token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"active@example.com\",\n    \"password\": \"secret123\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+      }
+    },
+    {
+      "name": "2. Wrong Password (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status is 401', () => pm.response.to.have.status(401));",
+              "pm.test('generic message prevents user enumeration', () => {",
+              "    pm.expect(pm.response.json().message).to.eql('Email atau kata sandi yang Anda masukkan salah.');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"active@example.com\",\n    \"password\": \"password-salah\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+      }
+    },
+    {
+      "name": "3. Unverified Account (403)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status is 403', () => pm.response.to.have.status(403));",
+              "pm.test('message', () => {",
+              "    pm.expect(pm.response.json().message).to.eql('Silakan verifikasi email Anda terlebih dahulu.');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"unverified@example.com\",\n    \"password\": \"secret123\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+      }
+    },
+    {
+      "name": "4. Suspended Account (403)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status is 403', () => pm.response.to.have.status(403));",
+              "pm.test('message', () => {",
+              "    pm.expect(pm.response.json().message).to.eql('Akun Anda sedang ditangguhkan.');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"suspended@example.com\",\n    \"password\": \"secret123\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+      }
+    },
+    {
+      "name": "5. Unknown Email (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status is 401', () => pm.response.to.have.status(401));",
+              "pm.test('identical message to a wrong password', () => {",
+              "    pm.expect(pm.response.json().message).to.eql('Email atau kata sandi yang Anda masukkan salah.');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"ghost@example.com\",\n    \"password\": \"secret123\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+      }
+    },
+    {
+      "name": "6. Invalid Email Format (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status is 422', () => pm.response.to.have.status(422));",
+              "pm.test('rejected by the EmailAddress value object', () => {",
+              "    pm.expect(pm.response.json()).to.have.property('errors');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"bukan-email\",\n    \"password\": \"secret123\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+      }
+    },
+    {
+      "name": "7. Missing Fields (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.test('status is 422', () => pm.response.to.have.status(422));"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+      }
+    },
+    {
+      "name": "8. Auto-Suspend on 5th Failure (401 -> then 403)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('status is 401', () => pm.response.to.have.status(401));",
+              "console.log('The almost@example.com account is now SUSPENDED. Re-run request 1 shape against it with the CORRECT password and you will get 403.');"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"almost@example.com\",\n    \"password\": \"password-salah\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/v1/auth/login", "host": ["{{base_url}}"], "path": ["api", "v1", "auth", "login"] }
+      }
+    }
+  ]
+}
